@@ -1,14 +1,14 @@
 // src/canvas-engine/adjustable-rules/poolSizes.ts
 
-import { deviceType, type DeviceType } from "../shared/responsiveness.ts";
-import type { SceneMode } from "./sceneRuleSets.ts";
+import { deviceType, type DeviceType } from "../shared/responsiveness";
+import { SceneLookupKey } from "./sceneMode";
 
 // types
 // device-level (mode-resolved)
 export type PoolSizes = Record<DeviceType, number>;
 
 // mode-level table (ruleset-owned)
-export type PoolSizesByMode = Record<SceneMode, PoolSizes>;
+export type PoolSizesByMode = Record<SceneLookupKey, PoolSizes>;
 
 // policy
 export const POOL_SIZES: PoolSizesByMode = {

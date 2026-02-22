@@ -1,6 +1,6 @@
 // src/canvas-engine/condition/conditionPlanner.ts
 
-import { hash32 } from "../shared/hash32.ts";
+import { hash32 } from "../shared/hash32";
 import type {
   ConditionKind,
   ShapeName,
@@ -9,10 +9,10 @@ import type {
   Quota,
   Limits,
   QuotaAnchor,
-  QuotaCurvesByKind
-} from "./domain.ts";
-import type { PoolItem, PlanEntry } from "./types.ts";
-import { CONDITIONS } from "./domain.ts";
+  QuotaSpecificationByKind
+} from "./domain";
+import type { PoolItem, PlanEntry } from "./types";
+import { CONDITIONS } from "./domain";
 
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
@@ -72,12 +72,19 @@ function finalizeQuotas(kind: ConditionKind, q: ResolvedLimits): ResolvedLimits 
   return out as ResolvedLimits;
 }
 
-function curveAnchorsFor(kind: ConditionKind, quotaCurves: QuotaCurvesByKind): QuotaAnchor[] {
-  return quotaCurves[kind] ?? [];
+function curveAnchorsFor(
+  kind: ConditionKind,
+  quotaSpecification: QuotaSpecificationByKind
+): readonly QuotaAnchor[] {
+  return quotaSpecification[kind] ?? [];
 }
 
-function quotasFor(kind: ConditionKind, u: number, quotaCurves: QuotaCurvesByKind): ResolvedLimits {
-  const anchors = curveAnchorsFor(kind, quotaCurves);
+function quotasFor(
+  kind: ConditionKind,
+  u: number,
+  quotaSpecification: QuotaSpecificationByKind
+): ResolvedLimits {
+  const anchors = curveAnchorsFor(kind, quotaSpecification);
   if (!anchors.length) return finalizeQuotas(kind, {} as ResolvedLimits);
 
   const t = clamp01(u);
@@ -112,7 +119,7 @@ export function planForBucket(
   items: PoolItem[],
   u: number,
   salt = 0,
-  quotaCurves: QuotaCurvesByKind
+  quotaSpecification: QuotaSpecificationByKind
 ): Map<number, PlanEntry> {
   const m = new Map<number, PlanEntry>();
   if (!items.length) return m;
@@ -123,7 +130,7 @@ export function planForBucket(
     return ka - kb || a.id - b.id;
   });
 
-  const raw = quotasFor(kind, u, quotaCurves);
+  const raw = quotasFor(kind, u, quotaSpecification);
 
   const finiteEntries = entries(raw).filter(([, v]) => v != null) as [
     ShapeName,

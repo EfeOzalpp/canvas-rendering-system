@@ -1,25 +1,25 @@
 // src/canvas-engine/runtime/engine/loop.ts
 
-import type { PLike } from "../p/makeP.ts";
-import { normalizeDprTransform, reassertDprTransformIfMutated } from "../util/transform.ts";
+import type { PLike } from "../p/makeP";
+import { normalizeDprTransform, reassertDprTransformIfMutated } from "../util/transform";
 
-import type { SceneMode } from "../../adjustable-rules/sceneRuleSets.ts";
-import type { CanvasPaddingSpec } from "../../adjustable-rules/canvasPadding.ts";
+import type { SceneLookupKey } from "../../adjustable-rules/sceneMode";
+import type { CanvasPaddingSpec } from "../../adjustable-rules/canvasPadding";
 
-import { getPaddingSpecForState } from "../layout/padding.ts";
-import { computeGridCached, type GridCacheState } from "../layout/gridCache.ts";
+import { getPaddingSpecForState } from "../layout/padding";
+import { computeGridCached, type GridCacheState } from "../layout/gridCache";
 
-import { drawBackground } from "../render/background.ts";
-import { drawGridOverlay } from "../render/gridOverlay.ts";
-import { getGradientRGB, type PaletteCache } from "../render/palette.ts";
-import { drawGhosts, type Ghost } from "../render/ghosts.ts";
-import { drawItems, type LiveState } from "../render/items.ts";
+import { drawBackground } from "../render/background";
+import { drawGridOverlay } from "../render/gridOverlay";
+import { getGradientRGB, type PaletteCache } from "../render/palette";
+import { drawGhosts, type Ghost } from "../render/ghosts";
+import { drawItems, type LiveState } from "../render/items";
 
-import { drawItemFromRegistry } from "../shapes/draw.ts";
-import type { ShapeRegistry } from "../shapes/registry.ts";
+import { drawItemFromRegistry } from "../shapes/draw";
+import type { ShapeRegistry } from "../shapes/registry";
 
-import type { EngineFieldItem } from "../types.ts";
-import type { DebugFlags } from "../debug/flags.ts";
+import type { EngineFieldItem } from "../types";
+import type { DebugFlags } from "../debug/flags";
 
 export type LoopDeps = {
   p: PLike;
@@ -43,7 +43,7 @@ export type LoopDeps = {
   inputs: { liveAvg: number };
 
   // policy getters (so loop doesn't own policy vars)
-  getSceneMode: () => SceneMode;
+  getSceneLookup: () => SceneLookupKey;
   getPaddingSpecOverride: () => CanvasPaddingSpec | null;
 
   // caches
@@ -71,7 +71,7 @@ export function createEngineTicker(deps: LoopDeps) {
     hero,
     style,
     inputs,
-    getSceneMode,
+    getSceneLookup,
     getPaddingSpecOverride,
     gridCache,
     paletteCache,
@@ -115,7 +115,7 @@ export function createEngineTicker(deps: LoopDeps) {
 
     const spec = getPaddingSpecForState(
       p.width,
-      getSceneMode(),
+      getSceneLookup(),
       getPaddingSpecOverride()
     );
 

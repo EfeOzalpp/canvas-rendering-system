@@ -1,7 +1,7 @@
 // src/canvas-engine/scene-logic/scoring.ts
 
-import { rand01Keyed } from "../shared/hash32.ts";
-import type { ShapeName } from "../adjustable-rules/shapeCatalog.ts";
+import { rand01Keyed } from "../shared/hash32";
+import type { ShapeName } from "../adjustable-rules/shapeCatalog";
 
 export type PlacedFoot = {
   r0: number;
@@ -11,7 +11,7 @@ export type PlacedFoot = {
   shape?: ShapeName;
 };
 
-export type ShapeMetaLike = {
+export type separationMetaLike = {
   group?: string;
   separation?: number; // in cells
 };
@@ -32,7 +32,7 @@ export function scoreCandidateGeneric(opts: {
   shape?: ShapeName;
 
   // pass data, don't import globals
-  getMeta?: (shape?: ShapeName) => ShapeMetaLike | undefined;
+  getMeta?: (shape?: ShapeName) => separationMetaLike | undefined;
 }) {
   const { r0, c0, wCell, hCell, cols, usedRows, placed, salt, shape, getMeta } = opts;
 

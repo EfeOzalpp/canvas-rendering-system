@@ -1,7 +1,8 @@
-// src/canvas-engine/condition/conditions.ts
+// src/canvas-engine/adjustable-rules/conditions.ts
+// (or wherever this file actually lives)
 
-import type { ConditionKind, ShapeKind } from "./shapeCatalog.ts";
-import { CONDITION_KINDS, SHAPES } from "./shapeCatalog.ts";
+import type { ConditionKind, ShapeKind } from "./shapeCatalog";
+import { CONDITION_KINDS, SHAPES } from "./shapeCatalog";
 
 export { CONDITION_KINDS, SHAPES };
 export type { ConditionKind };
@@ -9,7 +10,8 @@ export type { ConditionKind };
 export type Size = { w: number; h: number };
 
 export type Variant = { shape: ShapeKind; footprint: Size };
-export type ConditionSpec = { variants: Variant[] };
+
+export type ConditionSpec = { variants: readonly Variant[] };
 
 export const CONDITIONS: Record<ConditionKind, ConditionSpec> = {
   A: {

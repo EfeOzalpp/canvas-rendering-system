@@ -1,14 +1,14 @@
 // src/canvas-engine/scene-logic/composeField.ts
 
-import { deviceType } from "../shared/responsiveness.ts";
+import { deviceType } from "../shared/responsiveness";
 
-import { resolveCanvasPaddingSpec } from "../adjustable-rules/resolveCanvasPadding.ts";
-import { makeCenteredSquareGrid } from "../grid-layout/layoutCentered.ts";
+import { resolveCanvasPaddingSpec } from "../adjustable-rules/resolveCanvasPadding";
+import { makeCenteredSquareGrid } from "../grid-layout/layoutCentered";
 
-import type { ComposeOpts, ComposeResult, PoolItem } from "./types.ts";
-import { clamp01, usedRowsFromSpec } from "./math.ts";
-import { placePoolItems } from "./place.ts";
-import { retargetKindsStable, assignShapesByPlanner } from "./plan.ts";
+import type { ComposeOpts, ComposeResult, PoolItem } from "./types";
+import { clamp01, usedRowsFromSpec } from "./math";
+import { placePoolItems } from "./place";
+import { retargetKindsStable, assignShapesByPlanner } from "./plan";
 
 export function composeField(opts: ComposeOpts): ComposeResult {
   const w = Math.round(opts.canvas.w);
@@ -63,9 +63,9 @@ export function composeField(opts: ComposeOpts): ComposeResult {
     y: undefined,
   }));
 
-  // planner assigns sizes/shapes based on policy (quotaCurves etc.)
+  // planner assigns sizes/shapes based on policy (quotaSpecification etc.)
   retargetKindsStable(pool, u, desiredSize);
-  assignShapesByPlanner(pool, u, salt, opts.quotaCurves);
+  assignShapesByPlanner(pool, u, salt, opts.quotaSpecification);
 
   // placement consumes resolved rule data (bands) + derived layout info
     const { placed, nextPool } = placePoolItems({
@@ -82,7 +82,7 @@ export function composeField(opts: ComposeOpts): ComposeResult {
     usedRows,
     salt,
     bands: opts.bands,
-    shapeMeta: opts.shapeMeta,
+    separationMeta: opts.separationMeta,
   });
 
 

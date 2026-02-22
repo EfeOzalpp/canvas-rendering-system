@@ -1,13 +1,15 @@
 // src/canvas-engine/scene-logic/types.ts
 
-import type { DeviceType } from "../shared/responsiveness.ts";
-import type { CanvasPaddingSpec } from "../adjustable-rules/canvasPadding.ts";
-import type { Place } from "../grid-layout/occupancy.ts";
-import type { QuotaCurvesByKind } from "../adjustable-rules/quotaSpecification.ts";
-import type { ConditionKind, ShapeName, Size } from "../condition/domain.ts";
-import type { SceneMode } from "../adjustable-rules/sceneRuleSets.ts";
-import type { ShapeBands } from "../adjustable-rules/placementRules.ts";
-import type { ShapeMeta } from "../adjustable-rules/shapeMeta.ts"; 
+import type { DeviceType } from "../shared/responsiveness";
+import type { CanvasPaddingSpec } from "../adjustable-rules/canvasPadding";
+import type { Place } from "../grid-layout/occupancy";
+
+import type { QuotaSpecificationByKind } from "../adjustable-rules/quotaSpecification";
+import type { ConditionKind, ShapeName, Size } from "../condition/domain";
+
+import type { ShapeBands } from "../adjustable-rules/placementRules";
+import type { SeparationMeta } from "../adjustable-rules/separationMeta";
+import type { SceneLookupKey } from "../adjustable-rules/sceneMode";
 
 export type FootRect = Place;
 
@@ -31,14 +33,17 @@ export type PlacedItem = {
 
 export type ComposeOpts = {
   // keep mode for debugging/meta + padding selection
-  mode: SceneMode;
-  padding: Record<DeviceType, CanvasPaddingSpec>;
+  mode: SceneLookupKey;
+
+  // padding table (device resolved later)
+  padding: Record<DeviceType, CanvasPaddingSpec | null>;
 
   // resolved rule data (NO mode branching needed in compose/placement)
   bands: ShapeBands;
-  shapeMeta: Record<ShapeName, ShapeMeta>;
+  separationMeta: Record<ShapeName, SeparationMeta>;
 
-  quotaCurves: QuotaCurvesByKind;
+  quotaSpecification: QuotaSpecificationByKind;
+
   allocAvg: number | undefined;
   viewportKey?: number | string;
 
@@ -59,7 +64,7 @@ export type ComposeMeta = {
   cell: number;
   usedRows: number;
 
-  mode: SceneMode;
+  mode: SceneLookupKey;
 };
 
 export type ComposeResult = {

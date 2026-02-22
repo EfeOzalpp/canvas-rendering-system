@@ -1,33 +1,40 @@
 // src/canvas-engine/runtime/index.ts
 
-import type { EngineControls, EngineFieldItem, StartCanvasEngineOpts } from "./types.ts";
+import type { EngineControls, EngineFieldItem, StartCanvasEngineOpts } from "./types";
 
-import { registerEngineInstance, stopCanvasEngine, isCanvasRunning, stopAllCanvasEngines } from "./engine/registry.ts";
-import { createEngineTicker } from "./engine/loop.ts";
-import { registerEngineFrame, unregisterEngineFrame } from "./engine/scheduler.ts";
+import {
+  registerEngineInstance,
+  stopCanvasEngine,
+  isCanvasRunning,
+  stopAllCanvasEngines,
+} from "./engine/registry";
+import { createEngineTicker } from "./engine/loop";
+import { registerEngineFrame, unregisterEngineFrame } from "./engine/scheduler";
 
-import { ensureMount, applyCanvasStyle } from "./platform/mount.ts";
-import { makeP, type PLike } from "./p/makeP.ts";
+import { ensureMount, applyCanvasStyle } from "./platform/mount";
+import { makeP, type PLike } from "./p/makeP";
 
-import { clamp01 } from "./util/easing.ts";
+import { clamp01 } from "./util/easing";
 
-import type { SceneMode } from "../adjustable-rules/sceneRuleSets.ts";
-import type { CanvasPaddingSpec } from "../adjustable-rules/canvasPadding.ts";
+// Scene lookup key (BaseMode | SceneModifier) is used by runtime ticker to pick rules.
+import type { SceneLookupKey } from "../adjustable-rules/sceneMode";
 
-import { resolveBounds } from "./layout/bounds.ts";
-import { createGridCache, invalidateGridCache } from "./layout/gridCache.ts";
-import { installResizeHandlers } from "./platform/resize.ts";
+import type { CanvasPaddingSpec } from "../adjustable-rules/canvasPadding";
 
-import { createPaletteCache } from "./render/palette.ts";
-import { type LiveState, defaultShapeKeyOfItem } from "./render/items.ts";
+import { resolveBounds } from "./layout/bounds";
+import { createGridCache, invalidateGridCache } from "./layout/gridCache";
+import { installResizeHandlers } from "./platform/resize";
 
-import { Z_INDEX } from "./shapes/zIndex.ts";
-import { createDefaultShapeRegistry, type ShapeRegistry } from "./shapes/registry.ts";
+import { createPaletteCache } from "./render/palette";
+import { type LiveState, defaultShapeKeyOfItem } from "./render/items";
 
-import { BRAND_STOPS_VIVID } from "../modifiers/color-modifiers/stops.ts";
-import { DEBUG_DEFAULT, type DebugFlags } from "./debug/flags.ts";
+import { Z_INDEX } from "./shapes/zIndex";
+import { createDefaultShapeRegistry, type ShapeRegistry } from "./shapes/registry";
 
-export type { EngineControls as CanvasEngineControls } from "./types.ts";
+import { BRAND_STOPS_VIVID } from "../modifiers/color-modifiers/stops";
+import { DEBUG_DEFAULT, type DebugFlags } from "./debug/flags";
+
+export type { EngineControls as CanvasEngineControls } from "./types";
 
 /**
  * STYLE = knobs/config that change rendering but are not "signals".
@@ -62,12 +69,12 @@ export function startCanvasEngine(opts: StartCanvasEngineOpts = {}): EngineContr
   const hero = { x: null as number | null, y: null as number | null, visible: false };
 
   let ENGINE_SEQ = 0;
-  
+
   let canvasEl: HTMLCanvasElement | null = null;
   let p: PLike | null = null;
 
   // runtime policy inputs
-  let sceneMode: SceneMode = "start";
+  let sceneLookupKey: SceneLookupKey = "start";
   let paddingSpecOverride: CanvasPaddingSpec | null = null;
 
   // live/ghost state storage (owned by runtime)
@@ -115,7 +122,7 @@ export function startCanvasEngine(opts: StartCanvasEngineOpts = {}): EngineContr
   // start loop
   // ───────────────────────────────────────────────────────────
   const ghostsRef = { current: [] as any[] }; // loop.ts will type this as Ghost[]; keep it strict there.
-  
+
   const frameId = `${mount}::${++ENGINE_SEQ}`;
 
   const ticker = createEngineTicker({
@@ -124,7 +131,7 @@ export function startCanvasEngine(opts: StartCanvasEngineOpts = {}): EngineContr
     hero,
     style,
     inputs,
-    getSceneMode: () => sceneMode,
+    getSceneLookup: () => sceneLookupKey,
     getPaddingSpecOverride: () => paddingSpecOverride,
     gridCache,
     paletteCache,
@@ -201,11 +208,11 @@ export function startCanvasEngine(opts: StartCanvasEngineOpts = {}): EngineContr
     if (Number.isFinite(exitMs) && exitMs >= 0) style.exitMs = exitMs | 0;
 
     if (args.debug && typeof args.debug === "object") {
-  const d = args.debug as Partial<DebugFlags>;
-  if (typeof d.grid === "boolean") style.debug.grid = d.grid;
-  if (typeof d.gridAlpha === "number") style.debug.gridAlpha = Math.max(0, Math.min(1, d.gridAlpha));
-  if (typeof d.forbiddenAlpha === "number")
-    style.debug.forbiddenAlpha = Math.max(0, Math.min(1, d.forbiddenAlpha));
+      const d = args.debug as Partial<DebugFlags>;
+      if (typeof d.grid === "boolean") style.debug.grid = d.grid;
+      if (typeof d.gridAlpha === "number") style.debug.gridAlpha = Math.max(0, Math.min(1, d.gridAlpha));
+      if (typeof d.forbiddenAlpha === "number")
+        style.debug.forbiddenAlpha = Math.max(0, Math.min(1, d.forbiddenAlpha));
     }
   }
 
@@ -227,8 +234,13 @@ export function startCanvasEngine(opts: StartCanvasEngineOpts = {}): EngineContr
     if (canvasEl?.style) canvasEl.style.opacity = v ? "1" : "0";
   }
 
-  function setSceneMode(next: SceneMode) {
-    sceneMode = next;
+  /**
+   * Runtime "scene mode" is the *lookup key* used by ticker/rulesets.
+   * This is NOT the SceneState object. SceneState is resolved in app-layer and
+   * collapsed into a lookup key before reaching runtime.
+   */
+  function setSceneMode(next: SceneLookupKey) {
+    sceneLookupKey = next;
     invalidateGridCache(gridCache);
   }
 
@@ -259,6 +271,7 @@ export function startCanvasEngine(opts: StartCanvasEngineOpts = {}): EngineContr
     parentEl,
     stop,
   });
+
   onReady?.(controls);
   registerEngineFrame(frameId, ticker.tick, { priority: zIndex });
   return controls;

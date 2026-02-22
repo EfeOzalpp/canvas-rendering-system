@@ -1,15 +1,15 @@
 // src/canvas-engine/adjustable-rules/placementRules.ts
 
-import type { DeviceType } from "../shared/responsiveness.ts";
-import type { ShapeName } from "./shapeCatalog.ts";
+import type { DeviceType } from "../shared/responsiveness";
+import type { ShapeName } from "./shapeCatalog";
+import { SceneLookupKey } from "./sceneMode";
 
 export type Band = { topK: number; botK: number };
-export type ShapeBandsMode = "start" | "questionnaire" | "overlay";
 
 export type ShapeBands = Record<DeviceType, Record<ShapeName, Band>>;
 
 // 0 is top of the viewport and 1 is bottom of viewport topK is upper band and botK is lower band
-export const SHAPE_BANDS: Record<ShapeBandsMode, ShapeBands> = {
+export const SHAPE_BANDS: Record<SceneLookupKey, ShapeBands> = {
   
   start: {
     mobile: {

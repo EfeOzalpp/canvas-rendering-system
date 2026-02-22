@@ -1,13 +1,13 @@
 // src/canvas-engine/runtime/types.ts
 
-import type { SceneMode } from "../adjustable-rules/sceneRuleSets.ts";
-import type { CanvasPaddingSpec } from "../adjustable-rules/canvasPadding.ts";
-import type { EngineLayoutMode } from "./platform/mount.ts";
-import type { DprMode } from "./platform/viewport.ts";
-import type { CanvasBounds } from "../multi-canvas-setup/hostDefs.ts";
-import type { ShapeRegistry } from "./shapes/registry.ts";
-import type { DebugFlags } from "./debug/flags.ts";
-import type { EngineTick } from "./engine/scheduler.ts";
+import type { SceneLookupKey } from "../adjustable-rules/sceneMode";
+import type { CanvasPaddingSpec } from "../adjustable-rules/canvasPadding";
+import type { EngineLayoutMode } from "./platform/mount";
+import type { DprMode } from "./platform/viewport";
+import type { CanvasBounds } from "../multi-canvas-setup/hostDefs";
+import type { ShapeRegistry } from "./shapes/registry";
+import type { DebugFlags } from "./debug/flags";
+import type { EngineTick } from "./engine/scheduler";
 
 /**
  * Payload item consumed by the runtime renderer.
@@ -45,11 +45,11 @@ export type EngineControls = {
   setFieldVisible: (v: boolean) => void;
 
   // mode/policy inputs to runtime (THIS is the modular part)
-  setSceneMode: (mode: SceneMode) => void;
+  setSceneMode: (mode: SceneLookupKey) => void;
 
   /**
    * Optional escape hatch: if caller already resolved padding, runtime uses it.
-   * If not set, runtime resolves from CANVAS_PADDING + sceneMode.
+   * If not set, runtime resolves from CANVAS_PADDING + scene lookup key.
    */
   setPaddingSpec: (spec: CanvasPaddingSpec | null) => void;
 
@@ -71,6 +71,6 @@ export type StartCanvasEngineOpts = {
   dprMode?: DprMode;
   zIndex?: number;
   layout?: EngineLayoutMode;
-  bounds?: CanvasBounds; 
+  bounds?: CanvasBounds;
   shapeRegistry?: ShapeRegistry;
 };
